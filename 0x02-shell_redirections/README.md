@@ -59,3 +59,39 @@ Scripts
 13. Unique I/O Script
 
 13-unique: This script takes a list of words as input and only prints words that appear exactly once, one word per line, sorted.
+
+14. Search Script
+
+14-findthatword: This script displays lines containing the pattern "root" from the file /etc/passwd.
+
+15. Word Count Script
+
+15-countthatword: This script displays the number of lines containing the pattern "bin" in the file /etc/passwd.
+
+16. What's next?
+
+16-whatsnext: This script displays lines containing the pattern "root" and 3 lines after them in the file /etc/passwd.
+
+17. Word exclusion Script
+
+17-hidethisword: This script displays all lines in the file /etc/passwd excluding the pattern "bin".
+
+18. Alphabet Script
+
+18-letteronly: This script displays all lines of the file /etc/ssh/sshd_config starting with a letter, including capital letters.
+
+19. A to Z Script
+
+19-AZ: This script replaces all characters A and c from input to Z and e respectively.
+
+20. Letter removal Script
+
+20-hiago: This script removes all letters c and C from input.
+
+21. Rev Script
+
+21-reverse: This script reverses its input.
+
+22. Sorting Script
+
+22-users_and_homes: This script displays all users and their home directories, sorted by users, based on the /etc/passwd file.
