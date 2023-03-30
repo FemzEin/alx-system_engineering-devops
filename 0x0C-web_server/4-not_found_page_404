@@ -1,13 +1,26 @@
 #!/usr/bin/env bash
-# A script to configure Nginx server so that /redirect_me is redirecting to another page.
+# A bash script that installs nginx on an ubuntu machine.
+# This scripts also configures the default webpage served to be "Hello World!"
+# When request url matches /redirect_me, it redirects to my youtube channel.
+# When a page/file not found in the document root is requested, the 404.html
+# page is served to the client as stated with the error_page directive.
 
-sudo apt-get update
-sudo apt-get -y install nginx
-sudo ufw allow 'Nginx HTTP'
-sudo service nginx start
-echo "Hello World!" > /var/www/html/index.nginx-debian.html
-sed -i '/listen 80 default_server;/a rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
-echo "Ceci n'est pas une page" > /usr/share/nginx/html/custom_404.html
-sed -i '/server_name _;/a error_page 404 /custom_404.html;\nlocation = /custom_404.html {\nroot /usr/share/nginx/html;\ninternal;\n}' /etc/nginx/sites-available/default
-sudo service nginx restart
+sudo apt-get update -y
+
+sudo apt-get install nginx -y
+
+echo "Hello World!" | sudo dd status=none of=/var/www/html/index.html
+
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html > /dev/null
+
+NEW_RULE="\\\n\tlocation /redirect_me {\n\t\t return 301 https://www.youtube.com/@sammykingx;\n\t}\n"
+
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+
+sudo sed -i "53i $NEW_RULE" /etc/nginx/sites-available/default
+
+NEW_RULE="\\\n\terror_page 404 /404.html;\n\n\tlocation = /404.html {\n\t\tinternal;\n\t}\n"
+
+sudo sed -i "53i $NEW_RULE" /etc/nginx/sites-available/default
+
 sudo service nginx reload
