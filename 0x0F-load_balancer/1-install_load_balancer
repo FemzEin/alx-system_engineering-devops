@@ -1,5 +1,5 @@
-#!/usr/bin/env bash                                                                                                                  
-# Install and configure HAproxy on load balancing lb-01 server  
+#!/usr/bin/env bash
+# Install and configure HAproxy on load balancing lb-01 server
 
 # Update package lists before installing packages
 sudo apt-get update
@@ -8,7 +8,7 @@ sudo apt-get update
 sudo apt-get -y install software-properties-common
 sudo add-apt-repository ppa:vbernat/haproxy-2.6
 sudo apt-get update
-sudo apt-get -y install haproxy=2.6.\*
+sudo apt-get -y --allow-downgrades install haproxy=2.0.*
 
 # Append "ENABLED=1" to /etc/default/haproxy file
 echo "ENABLED=1" | sudo tee -a /etc/default/haproxy >/dev/null
