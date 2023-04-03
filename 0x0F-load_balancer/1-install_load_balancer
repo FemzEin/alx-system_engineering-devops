@@ -1,21 +1,28 @@
 #!/usr/bin/env bash                                                                                                                  
-# Install and configure HAproxy on load balancing lb-01 server                                                                       
+# Install and configure HAproxy on load balancing lb-01 server  
 
-sudo apt-get -y install --no-install-recommends software-properties-common
+# Update package lists before installing packages
+sudo apt-get update
+
+# Install required packages
+sudo apt-get -y install software-properties-common
 sudo add-apt-repository ppa:vbernat/haproxy-2.6
 sudo apt-get update
-sudo apt-get -y apt-get install haproxy=2.6.\*
+sudo apt-get -y install haproxy=2.6.\*
 
-echo "ENABLED=1" >> /etc/default/haproxy
+# Append "ENABLED=1" to /etc/default/haproxy file
+echo "ENABLED=1" | sudo tee -a /etc/default/haproxy >/dev/null
 
-sudo mv /etc/haproxy/haproxy.cfg{,.original}
-new="listen appname                                                                                                                  
-    bind 0.0.0.0:80                                                                                                                  
-    mode http                                                                                                                        
-    stats enable                                                                                                                     
-    option httpclose                                                                                                                 
-    option forwardfor                                                                                                                
-    server 140737-web-01 54.210.197.7:80 check                                                                                        
+# Create a new haproxy configuration file
+new="listen appname
+    bind 0.0.0.0:80
+    mode http
+    stats enable
+    option httpclose
+    option forwardfor
+    server 140737-web-01 54.210.197.7:80 check
     server 140737-web-02 54.237.45.180:80 check"
-echo "$new" > /etc/haproxy/haproxy.cfg
-sudo service haproxy restart
+echo "$new" | sudo tee /etc/haproxy/haproxy.cfg >/dev/null
+
+# Restart the haproxy service
+sudo systemctl restart haproxy.service
