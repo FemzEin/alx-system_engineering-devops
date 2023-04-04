@@ -4,9 +4,9 @@ class nginx {
     ensure => installed,
   }
   file { '/etc/nginx/conf.d/custom_headers.conf':
-    ensure => file,
-    content => "add_header X-Served-By ${::hostname};",
-    notify => Service['nginx'],
+    ensure  => file,
+    content => "add_header X-Served-By ${facts['networking']['hostname']};",
+    notify  => Service['nginx'],
   }
   service { 'nginx':
     ensure => running,
