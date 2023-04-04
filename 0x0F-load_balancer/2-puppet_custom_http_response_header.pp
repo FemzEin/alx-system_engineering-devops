@@ -1,12 +1,11 @@
 # Install Nginx and configure custom HTTP header response
 class nginx {
   package { 'nginx':
-    ensure => installed,
+    ensure => present,
   }
-  $encoded_hostname = URI.encode_www_form_component($facts['networking']['hostname'])
   file { '/etc/nginx/conf.d/custom_headers.conf':
     ensure  => file,
-    content => "add_header X-Served-By ${encoded_hostname};",
+    content => "add_header X-Served-By ${facts['networking']['hostname']};",
     notify  => Service['nginx'],
   }
   service { 'nginx':
@@ -16,6 +15,6 @@ class nginx {
 }
 
 # Apply the nginx class to the node
-node 'default' {
+node default {
   class { 'nginx': }
 }
