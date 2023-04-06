@@ -1,20 +1,36 @@
-#!/usr/bin/env bash
-# Bash script displays DNS records: record type, IP, subdomains
+#!/bin/bash
 
-print_rec ()
-{
-    printf "The subdomain %s is a " "$2"
-    dig "$2.$1" | grep -A1 'ANSWER SECTION:' | awk -F' ' '{ printf $4 }'
-    printf " record and points to "
-    dig "$2.$1" | grep -A1 'ANSWER SECTION:' | awk -F' ' '{ printf $5 }'
-    echo ""
+# Function to display information about a subdomain
+display_info() {
+    local domain="$1"
+    local subdomain="$2"
+
+    # Use the dig command to get the record type and destination
+    local info=$(dig +short "${subdomain}.${domain}")
+    local record_type=$(echo "${info}" | awk 'NR==1 {print $4}')
+    local destination=$(echo "${info}" | awk 'NR==2 {print $1}')
+
+    # Display the information
+    echo "The subdomain ${subdomain} is a ${record_type} record and points to ${destination}"
 }
 
-if [ -z "$2" ]; then
-   for subs in "www" "lb-01" "web-01" "web-02"
-   do
-       print_rec "$1" "$subs"
-   done
+# Check if the domain argument was provided
+if [[ -z "$1" ]]; then
+    echo "Error: The domain argument is mandatory"
+    exit 1
+fi
+
+# Set the domain variable
+domain="$1"
+
+# Check if the subdomain argument was provided
+if [[ -n "$2" ]]; then
+    # Display information for the specified subdomain
+    display_info "${domain}" "$2"
 else
-    print_rec "$1" "$2"
+    # Display information for the default subdomains
+    display_info "${domain}" "www"
+    display_info "${domain}" "lb-01"
+    display_info "${domain}" "web-01"
+    display_info "${domain}" "web-02"
 fi
