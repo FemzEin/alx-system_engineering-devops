@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# MySQL dump and create tarball
+
+# Set MySQL login credentials
+MYSQL_USER="root"
+MYSQL_PASSWORD=""
+
+# Set backup file name
+BACKUP_FILE="backup.sql"
+TARBALL_FILE="$(date +%d-%m-%Y).tar.gz"
+
+# Create MySQL dump of all databases
+mysqldump --all-databases --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" --result-file="$BACKUP_FILE"
+
+# Compress the MySQL dump
+tar -czf "$TARBALL_FILE" "$BACKUP_FILE"
