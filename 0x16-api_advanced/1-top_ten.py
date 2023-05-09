@@ -4,20 +4,22 @@ Gets the top 10 hot posts for a subreddit
 """
 import requests
 
+
 def top_ten(subreddit):
     """
-    Gets the top 10 hot posts for a subreddit
+        return top ten titles for a given subreddit
+        return None if invalid subreddit given
     """
-    if not isinstance(subreddit, str):
-        print("None")
-        return
-    base_url = f"https://www.reddit.com/r/{subreddit}/hot.json"
-    headers = {"User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/femziprof)"}
-    response = requests.get(base_url, headers=headers)
-    if response.status_code != 200:
-        print("None")
-        return
-    hot_posts = response.json().get("data", {}).get("children", [])
-    for post in hot_posts[:10]:
-        title = post.get("data", {}).get("title", "")
-        print(title)
+    # get user agent
+    # https://stackoverflow.com/questions/10606133/ -->
+    # sending-user-agent-using-requests-library-in-python
+    headers = requests.utils.default_headers()
+    headers.update({'User-Agent': 'My User Agent 1.0'})
+
+    url = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
+    r = requests.get(url, headers=headers).json()
+    top_ten = r.get('data', {}).get('children', [])
+    if not top_ten:
+        print(None)
+    for t in top_ten:
+        print(t.get('data').get('title'))
