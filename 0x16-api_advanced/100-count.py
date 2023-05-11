@@ -1,54 +1,54 @@
 #!/usr/bin/python3
-"""Recursive function that queries, parses the title of all hot articles, and prints a sorted count of given keywords"""
-
+"""Recursive function that queries, parses the title of all hot articles, and prints a sorted count of given keywords."""
 import requests
 
-def count_words(subreddit, word_list, after=None, counts=None):
-  """Initialize the counts dictionary if not given"""
-  if counts is None:
-    counts = {}
-    for word in word_list:
-      counts[word.lower()] = 0
-  
-  """Base case: no more posts to process"""
-  if after == "":
-    return counts
-  
-  """Build the URL and make the request"""
-  url = f"https://www.reddit.com/r/{subreddit}/hot.json"
-  if after is not None:
-    url += f"?after={after}"
-  headers = {"User-Agent": "recursive-function"}
-  response = requests.get(url, headers=headers, allow_redirects=False)
-  
-  """ Check if the response is valid"""
-  if response.status_code != 200:
-    return counts
-  
-  """Get the data and the next page"""
-  data = response.json().get("data", {})
-  after = data.get("after", "")
-  posts = data.get("children", [])
-  
-  """Process each post title and update the counts"""
-  for post in posts:
-    title = post.get("data", {}).get("title", "").lower()
-    for word in word_list:
-      word = word.lower()
-      """Split the title by non-alphanumeric characters and count the word"""
-      if word in title.split():
-        counts[word] += title.split().count(word)
-  
-  """Recursively call the function with the next page"""
-  return count_words(subreddit, word_list, after, counts)
 
-"""Example usage"""
-subreddit = "programming"
-word_list = ["python", "java", "javascript", "go"]
-counts = count_words(subreddit, word_list)
+def count_words(subreddit, word_list, instances={}, after="", count=0):
+    """Prints counts of given words found in hot posts of a given subreddit.
+    Args:
+        subreddit (str): The subreddit to search.
+        word_list (list): The list of words to search for in post titles.
+        instances (obj): Key/value pairs of words/counts.
+        after (str): The parameter for the next page of the API results.
+        count (int): The parameter of results matched thus far.
+    """
+    url = "https://www.reddit.com/r/{}/hot/.json".format(subreddit)
+    headers = {
+        "User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/Nacho_Buddy)"
+    }
+    params = {
+        "after": after,
+        "count": count,
+        "limit": 100
+    }
+    response = requests.get(url, headers=headers, params=params,
+                            allow_redirects=False)
+    try:
+        results = response.json()
+        if response.status_code == 404:
+            raise Exception
+    except Exception:
+        print("")
+        return
 
-""" Sort and print the results"""
-sorted_counts = sorted(counts.items(), key=lambda x: (-x[1], x[0]))
-for word, count in sorted_counts:
-  if count > 0:
-    print(f"{word}: {count}")
+    results = results.get("data")
+    after = results.get("after")
+    count += results.get("dist")
+    for c in results.get("children"):
+        title = c.get("data").get("title").lower().split()
+        for word in word_list:
+            if word.lower() in title:
+                times = len([t for t in title if t == word.lower()])
+                if instances.get(word) is None:
+                    instances[word] = times
+                else:
+                    instances[word] += times
+
+    if after is None:
+        if len(instances) == 0:
+            print("")
+            return
+        instances = sorted(instances.items(), key=lambda kv: (-kv[1], kv[0]))
+        [print("{}: {}".format(k, v)) for k, v in instances]
+    else:
+        count_words(subreddit, word_list, instances, after, count)
