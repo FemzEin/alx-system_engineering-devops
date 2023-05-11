@@ -7,19 +7,21 @@ import requests
 
 def top_ten(subreddit):
     """
-        return top ten titles for a given subreddit
-        return None if invalid subreddit given
+    Gets the top 10 hot posts for a subreddit
     """
-    # get user agent
-    # https://stackoverflow.com/questions/10606133/ -->
-    # sending-user-agent-using-requests-library-in-python
-    headers = requests.utils.default_headers()
-    headers.update({'User-Agent': 'My User Agent 1.0'})
-
-    url = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
-    r = requests.get(url, headers=headers).json()
-    top_ten = r.get('data', {}).get('children', [])
-    if not top_ten:
-        print(None)
-    for t in top_ten:
-        print(t.get('data').get('title'))
+    result = ""
+    if type(subreddit) is not str:
+        result = "None\n"
+    else:
+        base_url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+        headers = {'user-agent': 'safari:holberton/0.1.0 (by /u/Nacho_Buddy)'}
+        response = requests.get(base_url,
+                                headers=headers)
+        if response.status_code != 200:
+            result = "None\n"
+        else:
+            hot_posts = response.json().get("data").get("children")
+            for i in range(10):
+                title = hot_posts[i].get("data").get("title")
+                result += "{}\n".format(title)
+    print(result, end="")

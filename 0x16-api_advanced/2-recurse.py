@@ -5,32 +5,26 @@ Returns a list of all the hot titles in a subreddit
 import requests
 
 
-def recurse(subreddit, hot_list=[], after="tmp"):
+def recurse(subreddit, hot_list=[], after=None):
     """
-        return all hot articles for a given subreddit
-        return None if invalid subreddit given
+    Returns a list of all the hot titles in a subreddit
     """
-    # get user agent
-    # https://stackoverflow.com/questions/10606133/ -->
-    # sending-user-agent-using-requests-library-in-python
-    headers = requests.utils.default_headers()
-    headers.update({'User-Agent': 'My User Agent 1.0'})
-
-    # update url each recursive call with param "after"
-    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
-    if after != "tmp":
-        url = url + "?after={}".format(after)
-    r = requests.get(url, headers=headers, allow_redirects=False)
-
-    # append top titles to hot_list
-    results = r.json().get('data', {}).get('children', [])
-    if not results:
+    if type(subreddit) is not str:
+        return None
+    s = subreddit
+    base_url = "https://www.reddit.com/r/{}/hot.json?limit=100".format(s)
+    if after is not None:
+        base_url += "&after={}".format(after)
+    headers = {'user-agent': 'safari:holberton/0.1.0 (by /u/Nacho_Buddy)'}
+    response = requests.get(base_url,
+                            headers=headers,
+                            allow_redirects=False)
+    if response.status_code != 200:
+        return None
+    response = response.json()
+    after = response.get("data").get("after")
+    hot_posts = response.get("data").get("children")
+    hot_list.extend(map(lambda p: p.get("data").get("title"), hot_posts))
+    if after is None:
         return hot_list
-    for e in results:
-        hot_list.append(e.get('data').get('title'))
-
-    # get next param "after" else nothing else to recurse
-    after = r.json().get('data').get('after')
-    if not after:
-        return hot_list
-    return (recurse(subreddit, hot_list, after))
+    return recurse(subreddit, hot_list, after)
