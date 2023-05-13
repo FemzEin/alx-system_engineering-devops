@@ -1,0 +1,40 @@
+Postmortem
+
+Issue Summary
+
+On May 12, 2023, from 14:00 to 15:30 UTC, our website experienced a partial outage that affected 25% of our users. The affected users were unable to access some of the features on the website, such as logging in, uploading files, and viewing reports. The root cause of the issue was a memory leak in one of our Nginx servers that caused it to crash and stop serving requests.
+
+Timeline
+
+- 14:00 GMT+01:00 : A monitoring alert was triggered when the CPU usage of one of our Nginx servers spiked to 100%.
+- 14:05 GMT+01:00: The on-call engineer investigated the alert and found that the server was unresponsive. He tried to restart the server but it failed to boot up.
+- 14:10 GMT+01:00: The on-call engineer checked the logs and found that the server was running out of memory before crashing. He suspected that there was a memory leak in the application code or a third-party library.
+- 14:15 GMT+01:00: The on-call engineer escalated the issue to the development team and asked them to review the code for any potential memory leaks.
+- 14:20 GMT+01:00: The development team analyzed the code and found no obvious memory leaks. They suggested that the issue might be related to a recent update of the Nginx version on the server.
+- 14:25 GMT+01:00: The on-call engineer verified that the Nginx version on the server was different from the other servers. He decided to downgrade the Nginx version on the server to match the others.
+- 14:30 GMT+01:00: The on-call engineer successfully downgraded the Nginx version on the server and restarted it. The server started to serve requests normally and the CPU usage dropped to normal levels.
+- 14:35 GMT+01:00: The on-call engineer confirmed that the website was fully functional for all users and resolved the monitoring alert.
+- 15:30 GMT+01:00: The development team completed a thorough code review and confirmed that there were no memory leaks in the application code or any third-party libraries. They concluded that the issue was caused by a bug in the new Nginx version that triggered a memory leak under certain conditions.
+
+Root Cause and Resolution
+
+The root cause of the issue was a bug in the new Nginx version that caused a memory leak when handling large file uploads. The bug was introduced in the latest Nginx update that was applied to one of our servers during a routine maintenance. The bug affected only one server because it was randomly selected for the update as part of our rolling deployment strategy. The bug did not affect other servers because they were running an older Nginx version that did not have the bug.
+
+The issue was resolved by downgrading the Nginx version on the affected server to match the other servers. This eliminated the memory leak and restored the normal functionality of the website.
+
+Corrective and Preventative Measures
+
+To prevent this issue from happening again, we need to improve our testing and deployment processes for our Nginx servers. Specifically, we need to:
+
+Implement automated tests for our Nginx configuration and performance, including memory usage and file upload scenarios.
+Run these tests before and after applying any Nginx updates to ensure that they do not introduce any regressions or bugs.
+Use a staging environment to test any Nginx updates before deploying them to production servers.
+Monitor and compare the performance and behavior of different Nginx versions across our servers and alert on any anomalies or discrepancies.
+
+The following tasks have been created to implement these measures:
+
+Task 1: Write automated tests for Nginx configuration and performance using JMeter or similar tools.
+Task 2: Integrate these tests into our continuous integration and delivery pipeline using Jenkins or similar tools.
+Task 3: Set up a staging environment for testing Nginx updates using Docker or similar tools.
+Task 4: Configure our monitoring system to collect and compare metrics from different Nginx versions using Prometheus or similar tools.
+
